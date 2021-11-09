@@ -5,63 +5,60 @@
   <meta charset="utf-8">
   <title>yapilacaklarlistesi</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-
-
 </head>
-
 <main>
-
-  <div id="app-4">
+  <div id="todo-list-example">
+    <form v-on:submit.prevent="addNewTodo">
+      <label for="new-todo">Add a todo</label>
+      <input
+        v-model="newTodoText"
+        id="new-todo"
+        placeholder="E.g. Feed the cat"
+      >
+      <button>Add</button>
+    </form>
     <ol>
-      <li v-for="todo in todos">
-        [[ todo.text ]]
+      <li v-for="(todo, index) in todos">
+          <span v-text="todo.title"></span> -- 
+          <button v-on:click="todos.splice(index, 1)">Remove</button>
       </li>
-    </ol>
-  </div>
-
-  <div style="margin-top: 2vh;" id="app-5">
-    <p>[[ message ]]</p>
-    <button v-on:click="reverseMessage">Reverse Message</button>
-  </div>
-
-  <div style="margin-top: 6vh;" id="app-6">
-    <p>[[ message ]]</p>
-    <input v-model="message">
+  </ol>
   </div>
 
 </main>
 
 <script>
-var app4 = new Vue({
-  el: '#app-4',
-  data: {
-    todos: [
-      { text: 'Learn JavaScript' },
-      { text: 'Learn Vue' },
-      { text: 'Build something awesome' }
-    ]
-  },
-  delimiters: ["[[","]]"]
-});
 
-var app5 = new Vue({
+new Vue({
   delimiters: ["[[","]]"],
-  el: '#app-5',
+  el: '#todo-list-example',
   data: {
-    message: 'Hello Vue.js!'
+    newTodoText: '',
+    todos: [
+      {
+        id: 1,
+        title: 'Do the dishes',
+      },
+      {
+        id: 2,
+        title: 'Take out the trash',
+      },
+      {
+        id: 3,
+        title: 'Mow the lawn'
+      }
+    ],
+    nextTodoId: 4
   },
   methods: {
-    reverseMessage: function () {
-      this.message = this.message.split('').reverse().join('')
+    addNewTodo: function () {
+      this.todos.push({
+        id: this.nextTodoId++,
+        title: this.newTodoText
+      })
+      this.newTodoText = ''
     }
   }
-});
-var app6 = new Vue({
-  delimiters: ["[[","]]"],
-  el: '#app-6',
-  data: {
-    message: 'Hello Vue!'
-  }
-});
+})
 
 </script> 

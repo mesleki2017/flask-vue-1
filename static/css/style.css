@@ -1,0 +1,47 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  main {
+    background : linear-gradient(to right top,#97afcf,#4c87af);
+    min-height: 100vh;
+    min-width: 100vh;
+  }
+
+  table , th , td  {
+
+    border: 2px solid rgb(190, 49, 49);
+
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 18px;
+    margin-top: 5vh;
+    margin-left: 70vh;
+  }
+  th{
+      background-color: coral;
+  }
+  
+  table tr:nth-child(odd) {
+    transition: all linear 0.5s;
+    background-color: lightblue;
+  }
+  
+  table tr:nth-child(even) {
+    background-color: #ffffff;
+  }
+
+.c11{
+    font-size: 16px;
+    margin-left: 70vh;
+
+  }
+
+  input{
+      font-size: 20px;
+  }
+  button{
+      font-size: 20px;
+  }

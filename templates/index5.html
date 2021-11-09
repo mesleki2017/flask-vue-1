@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <title>yapilacaklarlistesi</title>
   <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <script src="{{url_for('static', filename='js/socket.io.min.js')}}"></script> 
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 </head>
 <main>
@@ -39,6 +40,17 @@
 </main>
 
 <script>
+
+socket = io.connect('http://' + document.domain + ':' + location.port);
+socket.on('connect', function () {
+        socket.emit('connect_to_server', todos);
+      });
+
+socket.on('backend_sends_all_list', function (dataFromBackend) {
+    aaa=[];
+    aaa=dataFromBackend;
+    console.log(aaa);
+});
 
 new Vue({
   delimiters: ["[[","]]"],
@@ -77,13 +89,18 @@ new Vue({
     addNewTodo: function () {
       this.todos.push({
         id: this.nextTodoId++,
-        title: this.newTodoText
-      })
-      this.newTodoText = ''
+        title: this.newTodoText,
+        done :false
+      });
+      //socket.emit('connect_to_server', this.todos.at(-1));
+      socket.emit('addDataToBackendSql', this.todos.at(-1));
+      this.newTodoText = '';
+
     },
     test1: function (index33) {
       if (this.todos[index33]["done"] == true){ console.log("test1 okey")}
       console.log(this.todos[index33]["title"]);
+      socket.emit('connect_to_server', this.todos[index33]);
     }
   }
 })

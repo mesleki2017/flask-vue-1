@@ -4,64 +4,118 @@
 <head>
   <meta charset="utf-8">
   <title>yapilacaklarlistesi</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <script src="{{url_for('static', filename='js/socket.io.min.js')}}"></script> 
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-
-
 </head>
-
 <main>
 
-  <div id="app-4">
-    <ol>
-      <li v-for="todo in todos">
-        [[ todo.text ]]
-      </li>
-    </ol>
-  </div>
+  <div id="todo-list-example1">
+    <form class="c11" v-on:submit.prevent="addNewTodo">
+      <label for="new-todo">Add a todo</label>
+      <input
+        v-model="newTodoText"
+        id="new-todo"
+        placeholder="something to do"
+      >
+      <button>Add</button>
+    </form>
 
-  <div style="margin-top: 2vh;" id="app-5">
-    <p>[[ message ]]</p>
-    <button v-on:click="reverseMessage">Reverse Message</button>
-  </div>
-
-  <div style="margin-top: 6vh;" id="app-6">
-    <p>[[ message ]]</p>
-    <input v-model="message">
-  </div>
-
+  <table>
+    <tr>
+      <th></th>
+      <th >index</th>
+      <th >done</th>
+      <th style="width: 50vh;">task</th>
+      <th></th>
+    </tr>
+    <tr v-for="(todo, index) in todos">
+      <td> <input type="checkbox" id="checkbox" v-model="todo.done == 1" v-on:click="doneChange(index)"></td>
+      <td>[[ index ]]</td>
+      <td>[[ todo.done ]]</td>
+      <td v-bind:style="[todo.done ? styleObject1 : styleObject2]">[[ todo.title ]]</td>
+      <th> <button style="margin: 10px; background-color: rgb(124, 124, 145);" v-on:click="deleteTask(index)">Remove</button> </th>
+    </tr>
+  </table>
+</div>
 </main>
 
 <script>
-var app4 = new Vue({
-  el: '#app-4',
-  data: {
-    todos: [
-      { text: 'Learn JavaScript' },
-      { text: 'Learn Vue' },
-      { text: 'Build something awesome' }
-    ]
-  },
-  delimiters: ["[[","]]"]
-});
 
-var app5 = new Vue({
+
+// socket.on('connect', function () {
+//         socket.emit('connect_to_server', todos);
+//       });
+
+// socket.on('backend_sends_all_list', function (dataFromBackend) {
+//     aaa=[];
+//     aaa=dataFromBackend;
+//     console.log(aaa);
+// });
+var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+
+new Vue({
+  
   delimiters: ["[[","]]"],
-  el: '#app-5',
+  el: '#todo-list-example1',
   data: {
-    message: 'Hello Vue.js!'
+    testData :[],
+    styleObject1: {
+    color: 'red',
+    fontSize: '12px',
+    "text-decoration": "line-through",
   },
+  styleObject2: {
+    color: 'blue',
+    fontSize: '20px'
+  },
+    newTodoText: '',
+    todos: [],
+    nextTodoId: 4,
+    
+    
+  },
+
   methods: {
-    reverseMessage: function () {
-      this.message = this.message.split('').reverse().join('')
-    }
+    //this.socket.on('backend_sends_all_list', function (dataFromBackend) {console.log("hjjjj")}),
+    addNewTodo: function () {
+      this.todos.push({
+        id: this.nextTodoId++,
+        title: this.newTodoText,
+        done :false
+      });
+      //socket.emit('connect_to_server', this.todos.at(-1));
+      socket.emit('addDataToBackendSql', this.todos.at(-1));
+      this.newTodoText = '';
+
+    },
+    doneChange: function (index33) {
+      if (this.todos[index33]["done"] == 1){ 
+        this.todos[index33]["done"] = 0;}
+        else{this.todos[index33]["done"] = 1}
+        socket.emit('taskDoneChange', {id:this.todos[index33]["id"],done:this.todos[index33]["done"]});
+    },
+
+    deleteTask: function (index) {
+      //this.todos.splice(index, 1);
+      this.testData.push(this.todos[index]["id"]);
+      console.log("delete",this.testData)
+      socket.emit('deleteRowsBackendSql', this.testData);
+    },
+  },
+  created: function () {
+    socket.on('backend_sends_all_list', function (dataFromBackend) {
+      console.log(dataFromBackend);
+      this.todos=[];
+      this.todos=dataFromBackend;
+    }.bind(this) 
+    );
+    socket.on('connect', function () {
+        socket.emit('connect_to_server', "connectionOK");
+      }.bind(this));
+    
   }
-});
-var app6 = new Vue({
-  delimiters: ["[[","]]"],
-  el: '#app-6',
-  data: {
-    message: 'Hello Vue!'
-  }
-});
+})
 
 </script> 

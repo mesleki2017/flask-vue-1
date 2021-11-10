@@ -23,7 +23,8 @@ def tabloyaEkleBackend(FrontenddenGelenData, methods=['GET', 'POST']):
 @socketio.on('connect_to_server')
 def tumSqlDatasiniGonder(FrontenddenGelenData, methods=['GET', 'POST']):
     print(FrontenddenGelenData)
-    socketio.emit('backend_sends_all_list',"tasks22")
+    data={"id":10,"title":"deneme33","done":False}
+    socketio.emit('backend_sends_all_list',data)
 
 
 if __name__ == '__main__':

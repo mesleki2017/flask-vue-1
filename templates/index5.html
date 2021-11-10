@@ -20,6 +20,8 @@
       >
       <button>Add</button>
     </form>
+  <button v-on:click="test3">aaa</button>
+  <span>[[ testData ]]</span>
   <table>
     <tr>
       <th></th>
@@ -29,7 +31,7 @@
       <th></th>
     </tr>
     <tr v-for="(todo, index) in todos">
-      <td> <input type="checkbox" id="checkbox" v-model="todo.done" v-on:click="test1(index)"></td>
+      <td> <input type="checkbox" id="checkbox" v-model="todo.done" v-on:click="test2(index)"></td>
       <td>[[ index ]]</td>
       <td>[[ todo.done ]]</td>
       <td v-bind:style="[todo.done ? styleObject1 : styleObject2]">[[ todo.title ]]</td>
@@ -41,21 +43,23 @@
 
 <script>
 
-socket = io.connect('http://' + document.domain + ':' + location.port);
-socket.on('connect', function () {
-        socket.emit('connect_to_server', todos);
-      });
 
-socket.on('backend_sends_all_list', function (dataFromBackend) {
-    aaa=[];
-    aaa=dataFromBackend;
-    console.log(aaa);
-});
+// socket.on('connect', function () {
+//         socket.emit('connect_to_server', todos);
+//       });
+
+// socket.on('backend_sends_all_list', function (dataFromBackend) {
+//     aaa=[];
+//     aaa=dataFromBackend;
+//     console.log(aaa);
+// });
 
 new Vue({
+  
   delimiters: ["[[","]]"],
   el: '#todo-list-example1',
   data: {
+    testData :1111110,
     styleObject1: {
     color: 'red',
     fontSize: '12px',
@@ -83,9 +87,13 @@ new Vue({
         done:false,
       }
     ],
-    nextTodoId: 4
+    nextTodoId: 4,
+    socket : io.connect('http://' + document.domain + ':' + location.port),
+    
   },
+
   methods: {
+    //this.socket.on('backend_sends_all_list', function (dataFromBackend) {console.log("hjjjj")}),
     addNewTodo: function () {
       this.todos.push({
         id: this.nextTodoId++,
@@ -100,8 +108,27 @@ new Vue({
     test1: function (index33) {
       if (this.todos[index33]["done"] == true){ console.log("test1 okey")}
       console.log(this.todos[index33]["title"]);
-      socket.emit('connect_to_server', this.todos[index33]);
-    }
+      this.socket.emit('connect_to_server', this.todos[index33]);
+    },
+    test2: function (data) {
+      //console.log(data);
+      this.socket.emit('connect_to_server', this.testData);
+    },
+    test3: function () {
+      //this.testData=44444;
+      console.log("**55",this.testData);
+    },
+  },
+  created: function () {
+    this.testData=56565656;
+    this.socket.on('backend_sends_all_list', function (dataFromBackend) {
+      console.log(dataFromBackend["id"],dataFromBackend["title"],dataFromBackend["done"]);
+      //this.todos.push({id:dataFromBackend["id"],title:dataFromBackend["title"],done:dataFromBackend["done"]});
+      //this.todos.push({id:10,title:"hjjhjjh",done:false}); 
+      this.testData=88880;
+    } 
+    );
+    
   }
 })
 

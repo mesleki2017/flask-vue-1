@@ -20,8 +20,7 @@
       >
       <button>Add</button>
     </form>
-  <button v-on:click="test3">aaa</button>
-  <span>[[ testData ]]</span>
+
   <table>
     <tr>
       <th></th>
@@ -31,11 +30,11 @@
       <th></th>
     </tr>
     <tr v-for="(todo, index) in todos">
-      <td> <input type="checkbox" id="checkbox" v-model="todo.done" v-on:click="test2(index)"></td>
+      <td> <input type="checkbox" id="checkbox" v-model="todo.done == 1" v-on:click="doneChange(index)"></td>
       <td>[[ index ]]</td>
       <td>[[ todo.done ]]</td>
       <td v-bind:style="[todo.done ? styleObject1 : styleObject2]">[[ todo.title ]]</td>
-      <th> <button v-on:click="todos.splice(index, 1)">Remove</button> </th>
+      <th> <button style="margin: 10px; background-color: rgb(124, 124, 145);" v-on:click="deleteTask(index)">Remove</button> </th>
     </tr>
   </table>
 </div>
@@ -53,13 +52,15 @@
 //     aaa=dataFromBackend;
 //     console.log(aaa);
 // });
+var socket = io.connect('http://' + document.domain + ':' + location.port);
+
 
 new Vue({
   
   delimiters: ["[[","]]"],
   el: '#todo-list-example1',
   data: {
-    testData :1111110,
+    testData :[],
     styleObject1: {
     color: 'red',
     fontSize: '12px',
@@ -70,25 +71,9 @@ new Vue({
     fontSize: '20px'
   },
     newTodoText: '',
-    todos: [
-      {
-        id: 1,
-        title: 'do task1',
-        done:false,
-      },
-      {
-        id: 2,
-        title: 'do task2',
-        done:false,
-      },
-      {
-        id: 3,
-        title: 'do task3',
-        done:false,
-      }
-    ],
+    todos: [],
     nextTodoId: 4,
-    socket : io.connect('http://' + document.domain + ':' + location.port),
+    
     
   },
 
@@ -105,29 +90,30 @@ new Vue({
       this.newTodoText = '';
 
     },
-    test1: function (index33) {
-      if (this.todos[index33]["done"] == true){ console.log("test1 okey")}
-      console.log(this.todos[index33]["title"]);
-      this.socket.emit('connect_to_server', this.todos[index33]);
+    doneChange: function (index33) {
+      if (this.todos[index33]["done"] == 1){ 
+        this.todos[index33]["done"] = 0;}
+        else{this.todos[index33]["done"] = 1}
+        socket.emit('taskDoneChange', {id:this.todos[index33]["id"],done:this.todos[index33]["done"]});
     },
-    test2: function (data) {
-      //console.log(data);
-      this.socket.emit('connect_to_server', this.testData);
-    },
-    test3: function () {
-      //this.testData=44444;
-      console.log("**55",this.testData);
+
+    deleteTask: function (index) {
+      //this.todos.splice(index, 1);
+      this.testData.push(this.todos[index]["id"]);
+      console.log("delete",this.testData)
+      socket.emit('deleteRowsBackendSql', this.testData);
     },
   },
   created: function () {
-    this.testData=56565656;
-    this.socket.on('backend_sends_all_list', function (dataFromBackend) {
-      console.log(dataFromBackend["id"],dataFromBackend["title"],dataFromBackend["done"]);
-      //this.todos.push({id:dataFromBackend["id"],title:dataFromBackend["title"],done:dataFromBackend["done"]});
-      //this.todos.push({id:10,title:"hjjhjjh",done:false}); 
-      this.testData=88880;
-    } 
+    socket.on('backend_sends_all_list', function (dataFromBackend) {
+      console.log(dataFromBackend);
+      this.todos=[];
+      this.todos=dataFromBackend;
+    }.bind(this) 
     );
+    socket.on('connect', function () {
+        socket.emit('connect_to_server', "connectionOK");
+      }.bind(this));
     
   }
 })

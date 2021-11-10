@@ -1,5 +1,8 @@
 from flask import Flask, jsonify, render_template,request
 from flask_socketio import SocketIO
+import pyisleri.sql_isleri1 as aa
+
+aa.sql_tablo_olustur("kendim")
 
 
 app = Flask(__name__)
@@ -16,15 +19,25 @@ def sessions():
 
 @socketio.on('addDataToBackendSql')
 def tabloyaEkleBackend(FrontenddenGelenData, methods=['GET', 'POST']):
-    ipadr=request.remote_addr
+    g_title = FrontenddenGelenData["title"]
+    g_done=FrontenddenGelenData["done"]
+    aa.addToSqlTable("kendim",g_title,g_done)
 
+@socketio.on('deleteRowsBackendSql')
+def tablodanSilBackend(FrontenddenGelenData, methods=['GET', 'POST']):
+    print("delete this row with id : ",FrontenddenGelenData)
+    aa.tablodan_sil("kendim",FrontenddenGelenData)
+    socketio.emit('backend_sends_all_list', aa.sql_to_list("kendim"))
+
+@socketio.on('taskDoneChange')
+def tabloDuzenleBackend(FrontenddenGelenData, methods=['GET', 'POST']):
+    print(FrontenddenGelenData)
+    aa.tabloda_duzenle("kendim",str(FrontenddenGelenData["id"]),"done",FrontenddenGelenData["done"])
 
 
 @socketio.on('connect_to_server')
 def tumSqlDatasiniGonder(FrontenddenGelenData, methods=['GET', 'POST']):
-    print(FrontenddenGelenData)
-    data={"id":10,"title":"deneme33","done":False}
-    socketio.emit('backend_sends_all_list',data)
+    socketio.emit('backend_sends_all_list', aa.sql_to_list("kendim"))
 
 
 if __name__ == '__main__':

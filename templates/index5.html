@@ -4,13 +4,17 @@
 <head>
   <meta charset="utf-8">
   <title>yapilacaklarlistesi</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  rel="stylesheet">
   <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+
   <script src="{{url_for('static', filename='js/socket.io.min.js')}}"></script> 
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 </head>
 <main>
 
   <div id="todo-list-example1">
+
     <form class="c11" v-on:submit.prevent="addNewTodo">
       <label for="new-todo">Add a todo</label>
       <input
@@ -18,7 +22,7 @@
         id="new-todo"
         placeholder="something to do"
       >
-      <button>Add</button>
+      <button class="material-icons orange600">add_box</button>
     </form>
 
   <table>
@@ -34,9 +38,10 @@
       <td>[[ index ]]</td>
       <td>[[ todo.done ]]</td>
       <td v-bind:style="[todo.done ? styleObject1 : styleObject2]">[[ todo.title ]]</td>
-      <th> <button style="margin: 10px; background-color: rgb(124, 124, 145);" v-on:click="deleteTask(index)">Remove</button> </th>
+      <th> <button class="material-icons" style="margin: 10px; " v-on:click="deleteTask(index)">delete_forever</button> </th>
     </tr>
   </table>
+
 </div>
 </main>
 
